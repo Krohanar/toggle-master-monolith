@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  title: API de Feature Flags
+  description: |
+    API para gerenciamento de *feature flags*, permitindo criar, listar, consultar e atualizar o status de recursos dinamicamente.
+  version: 1.0.1
+servers:
+  - url: http://15.228.243.35:5000
+    description: Servidor de Produção
+
+paths:
+  /flags:
+    post:
+      summary: Cria uma nova feature flag
+      description: Cria uma nova flag com nome e status (`is_enabled`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - is_enabled
+              properties:
+                name:
+                  type: string
+                  example: new-feature-2
+                is_enabled:
+                  type: boolean
+                  example: true
+      responses:
+        "201":
+          description: Flag criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Flag 'new-feature-2' criada com sucesso"
+        "400":
+          description: Corpo da requisição inválido
+        "409":
+          description: Já existe uma flag com esse nome
+
+    get:
+      summary: Lista todas as feature flags
+      description: Retorna todas as flags registradas no sistema.
+      responses:
+        "200":
+          description: Lista de flags retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: new-feature
+                    is_enabled:
+                      type: boolean
+                      example: false
+
+  /flags/{flag_name}:
+    get:
+      summary: Retorna o status de uma flag específica
+      parameters:
+        - name: flag_name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nome da flag a ser consultada.
+      responses:
+        "200":
+          description: Flag encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: new-feature
+                  is_enabled:
+                    type: boolean
+                    example: false
+        "404":
+          description: Flag não encontrada
+
+    put:
+      summary: Atualiza o status de uma flag
+      description: Atualiza o campo `is_enabled` de uma flag existente.
+      parameters:
+        - name: flag_name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nome da flag a ser atualizada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - is_enabled
+              properties:
+                is_enabled:
+                  type: boolean
+                  example: false
+      responses:
+        "200":
+          description: Flag atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Flag 'new-feature-2' atualizada"
+        "400":
+          description: Corpo da requisição inválido
+        "404":
+          description: Flag não encontrada
